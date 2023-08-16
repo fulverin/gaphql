@@ -15,11 +15,16 @@ const auditQuery = `{transaction(where: { eventId: { _eq: ${SchoolTasks} }, type
 const roleQuery = "{role{id slug name description user_role{user{ id login profile attrs campus}}}}"
 var userKey = "Go to HELL!!!"
 
-if (localStorage.getItem("GraphQL") !== null) {
-    document.getElementById("loginForm").classList.add("hidden")
-    document.getElementById("logout").classList.remove("hidden")
-    document.getElementById("pageContent").classList.remove("hidden")
-    askData();
+if (localStorage.getItem("GraphQLTime") !== null) {
+    const date = new Date()
+    if (new Date(date.getTime() - 20 * 60000) < new Date(localStorage.getItem("GraphQLTime"))) {
+        document.getElementById("loginForm").classList.add("hidden")
+        document.getElementById("logout").classList.remove("hidden")
+        document.getElementById("pageContent").classList.remove("hidden")
+        askData();
+    } else {
+        killSession("GraphQL", "GraphQLTime", 0)
+    }
 }
 
 async function askData() {
@@ -58,6 +63,8 @@ function logIn() {
                 return
             }
             localStorage.setItem("GraphQL", response);
+            localStorage.setItem("GraphQLTime", new Date());
+            killSession("GraphQL", "GraphQLTime", 60 * 20)
             document.getElementById("loginForm").classList.add("hidden")
             document.getElementById("logout").classList.remove("hidden")
             document.getElementById("pageContent").classList.remove("hidden")
@@ -66,8 +73,7 @@ function logIn() {
 }
 
 function logOut() {
-    localStorage.removeItem("GraphQL");
-    localStorage.removeItem("accessToken");
+    killSession("GraphQL", 0)
     document.getElementById("loginForm").classList.remove("hidden")
     document.getElementById("pageContent").classList.add("hidden")
     document.getElementById("logout").classList.add("hidden")
@@ -117,4 +123,12 @@ function yyyymmdd(val) {
     mm = mm < 10 ? "0" + mm : mm;
     dd = dd < 10 ? "0" + dd : dd;
     return yyyy + "/" + mm + "/" + dd
+}
+
+function killSession(elem, elem2, seconds) {
+    setTimeout(() => {
+        localStorage.removeItem(elem);
+        localStorage.removeItem(elem2);
+        console.log(localStorage.removeItem(elem))
+    }, seconds * 1000)
 }
